@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>REDAX · Colegio Bertha Von Glumer «Arcoíris»</title>
+<meta name="description" content="Generador de documentos institucionales.">
+<meta name="theme-color" content="#17332C">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/favicon-64.png" sizes="64x64" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="REDAX">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{--ink:#17332C;--ink-soft:#4a635b;--paper:#F3F2EA;--card:#FFF;--rule:#E5E2D8;
+    --green:#2E8C69;--green-bg:#E7E6F5;--amber:#8A6218;--apoyo:#93413A;--apoyo-bg:#F3E1DD;
+    --redax:#5B57C7;--redax-bg:#E7E6F5;--soft:#8a9a93;}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:"Inter",system-ui,sans-serif;line-height:1.5;}
+  .app{max-width:680px;margin:0 auto;background:var(--card);min-height:100vh;}
+  header{background:var(--ink);color:#EAF1ED;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+  .brand{display:flex;align-items:center;gap:9px;}
+  .brand svg{width:28px;height:28px;flex:none;}
+  .brand b{font-family:"Fraunces",Georgia,serif;font-weight:500;font-size:17px;}
+  .brand .prod{color:var(--redax);}
+  .h-sub{font-size:12px;color:#A7C1B6;margin-top:3px;}
+  .salir{background:none;border:1px solid #33564c;color:#A7C1B6;border-radius:8px;padding:6px 11px;font-size:12px;font-family:inherit;cursor:pointer;flex:none;}
+  .editor{padding:18px 20px 40px;}
+  .campo{margin-bottom:16px;}
+  label{display:block;font-size:11.5px;font-weight:600;margin-bottom:6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.05em;}
+  select,input,textarea{width:100%;border:1.5px solid var(--rule);border-radius:10px;padding:11px;font-family:inherit;font-size:15px;background:var(--card);color:var(--ink);}
+  select:focus,input:focus,textarea:focus{outline:2px solid var(--redax);outline-offset:1px;border-color:transparent;}
+  textarea{resize:vertical;min-height:60px;}
+  .fila{display:flex;gap:10px;}
+  .fila>div{flex:1;}
+  .checks{display:flex;gap:16px;flex-wrap:wrap;margin-top:4px;}
+  .chk{display:flex;align-items:center;gap:7px;font-size:14px;color:var(--ink);}
+  .chk input{width:auto;}
+  .hint{font-size:11.5px;color:var(--ink-soft);margin-top:6px;line-height:1.4;}
+  .btn{width:100%;background:var(--redax);color:#fff;border:none;border-radius:11px;padding:15px;font-size:15px;font-weight:600;font-family:inherit;cursor:pointer;}
+  .btn:disabled{opacity:.5;}
+  .btn-sm{background:var(--ink);color:#fff;border:none;border-radius:9px;padding:10px 16px;font-size:13.5px;font-weight:600;font-family:inherit;cursor:pointer;}
+  .btn-sm.alt{background:#fff;color:var(--ink);border:1.5px solid var(--rule);}
+  .btn-sm.acc{background:var(--redax);}
+  .msg{font-size:13px;padding:10px 13px;border-radius:9px;margin-top:12px;display:none;}
+  .msg.ok{background:var(--redax-bg);color:#33307a;display:block;}
+  .msg.err{background:var(--apoyo-bg);color:var(--apoyo);display:block;}
+  .msg.work{background:#F6EBD6;color:#6f5015;display:block;}
+  .toolbar{display:flex;gap:10px;padding:14px 20px;background:#EEF2F0;align-items:center;flex-wrap:wrap;}
+  .toolbar .t{font-size:13px;color:var(--ink-soft);flex:1;min-width:180px;}
+  .envio{padding:16px 20px;background:#F4F3FB;border-top:1px solid var(--rule);}
+  .envio-tit{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:10px;}
+  .extra{padding:16px 20px 30px;}
+  .extra h3{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);margin:14px 0 8px;}
+  .caja{background:#F8FAF9;border:1px solid var(--rule);border-radius:12px;padding:14px;white-space:pre-wrap;font-size:14.5px;line-height:1.6;}
+  .login-intro{font-size:13.5px;color:var(--ink-soft);margin:2px 0 18px;line-height:1.5;}
+  /* Hoja imprimible */
+  .hoja-wrap{padding:20px;background:#dcdcd2;}
+  .hoja{background:#fff;max-width:680px;margin:0 auto;padding:42px 58px 60px;color:#1a1a1a;font-family:Georgia,"Times New Roman",serif;line-height:1.7;box-shadow:0 2px 14px rgba(0,0,0,.12);}
+  .membrete{text-align:center;border-bottom:2px solid #17332C;padding-bottom:15px;margin-bottom:6px;}
+  .membrete .logo{max-height:88px;max-width:184px;margin:0 auto 7px;display:block;}
+  .membrete .esc{font-family:"Fraunces",Georgia,serif;font-size:21px;font-weight:600;color:#17332C;}
+  .membrete .slogan{font-family:Georgia,serif;font-style:italic;font-size:13px;color:#2E8C69;margin-top:3px;}
+  .membrete .meta{font-size:12px;color:#555;margin-top:5px;}
+  .mem-top{display:block;width:100%;max-width:100%;margin:0 auto 12px;}
+  .mem-pie{display:block;width:100%;max-width:100%;margin:34px auto 0;}
+  .lugarfecha{text-align:right;font-size:13.5px;color:#333;margin:22px 0 8px;}
+  .titulo{text-align:center;font-family:"Fraunces",Georgia,serif;font-size:17px;letter-spacing:.1em;margin:16px 0 22px;text-transform:uppercase;color:#17332C;}
+  .destinatario{font-size:15px;font-weight:600;margin:0 0 14px;}
+  .cuerpo p{font-size:15px;text-align:justify;margin:0 0 12px;}
+  .hoja .tabla-tit{font-weight:700;margin:18px 0 6px;font-size:14px;}
+  .hoja .tabla{width:100%;border-collapse:collapse;margin:6px 0 14px;font-size:13px;}
+  .hoja .tabla th,.hoja .tabla td{border:1px solid #444;padding:6px 9px;text-align:left;vertical-align:top;}
+  .hoja .tabla th{background:#ECEAF6;font-weight:700;}
+  .hoja .lista{margin:8px 0 14px 22px;font-size:14.5px;}
+  .hoja .lista li{margin:3px 0;text-align:justify;}
+  .firma{margin-top:52px;text-align:center;}
+  .firma .linea{width:280px;border-top:1px solid #1a1a1a;margin:0 auto 6px;}
+  .firma .nom{font-weight:600;}
+  .firma .car{font-size:13px;color:#444;}
+  .atte{text-align:center;letter-spacing:.16em;font-size:13px;color:#17332C;margin-top:34px;}
+  .foliox{margin-top:34px;font-size:11px;color:#777;letter-spacing:.03em;}
+  @media print{
+    body{background:#fff;}
+    .noprint{display:none !important;}
+    .hoja-wrap{padding:0;background:#fff;}
+    .hoja{box-shadow:none;margin:0;max-width:none;padding:34px 44px;}
+    @page{margin:14mm;}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="noprint">
+    <div>
+      <div class="brand">
+        <svg viewBox="0 0 400 400" aria-label="REDAX"><g stroke="#5B57C7"><line x1="200" y1="60" x2="200" y2="20" stroke-width="16" stroke-linecap="round"/><line x1="340" y1="200" x2="380" y2="200" stroke-width="16" stroke-linecap="round"/><line x1="200" y1="340" x2="200" y2="380" stroke-width="16" stroke-linecap="round"/><line x1="60" y1="200" x2="20" y2="200" stroke-width="16" stroke-linecap="round"/><line x1="299" y1="101" x2="327" y2="73" stroke-width="10" stroke-linecap="round"/><line x1="101" y1="299" x2="73" y2="327" stroke-width="10" stroke-linecap="round"/><line x1="299" y1="299" x2="327" y2="327" stroke-width="10" stroke-linecap="round"/><line x1="101" y1="101" x2="73" y2="73" stroke-width="10" stroke-linecap="round"/></g><circle cx="200" cy="200" r="140" fill="none" stroke="#5B57C7" stroke-width="10"/><circle cx="200" cy="200" r="96" fill="none" stroke="#5B57C7" stroke-width="6"/><circle cx="200" cy="200" r="34" fill="#5B57C7"/><circle cx="200" cy="200" r="10" fill="#F3F2EA"/></svg>
+        <b>LUMEN <span class="prod">REDAX</span></b>
+      </div>
+      <div class="h-sub">Documentos · Colegio Bertha Von Glumer «Arcoíris»</div>
+    </div>
+    <button class="salir" id="btnSalir" onclick="salir()" style="display:none">Salir</button>
+  </header>
+
+  <!-- LOGIN -->
+  <div id="login" class="editor noprint" style="display:none">
+    <p class="login-intro">Escribe tu llave de acceso para entrar. La da la dirección y se guarda en este dispositivo para no volver a capturarla.</p>
+    <div class="campo">
+      <label>Llave de acceso</label>
+      <input type="password" id="tokenInput" placeholder="Pega aquí tu llave" autocomplete="off">
+    </div>
+    <button class="btn" id="btnEntrar" onclick="entrar()">Entrar</button>
+    <div class="msg" id="msgLogin"></div>
+  </div>
+
+  <!-- GENERADOR -->
+  <div id="captura" class="editor noprint" style="display:none">
+    <form onsubmit="return false;">
+      <div class="fila">
+        <div class="campo">
+          <label>Tipo de documento</label>
+          <select id="tipo" onchange="tipoCambio()"><option value="">Cargando…</option></select>
+        </div>
+        <div class="campo">
+          <label>Nivel</label>
+          <select id="nivel" onchange="filtrarFirmantes()"><option value="">Cargando…</option></select>
+        </div>
+      </div>
+      <div class="campo">
+        <label>Membrete</label>
+        <select id="membrete">
+          <option value="colegio">Colegio (para la comunidad)</option>
+          <option value="sep">SEP · Supervisión (oficial)</option>
+        </select>
+        <div class="hint">Se preselecciona según el tipo (los oficios salen con el membrete de la SEP). Puedes cambiarlo.</div>
+      </div>
+      <div class="campo">
+        <label>Destinatario</label>
+        <input type="text" id="destinatario" placeholder="Ej. Queridas familias de Primaria">
+      </div>
+      <div class="campo">
+        <label>Título / asunto</label>
+        <input type="text" id="titulo" placeholder="Ej. Suspensión de labores por Consejo Técnico">
+      </div>
+      <div class="fila">
+        <div class="campo">
+          <label>Subtipo (opcional)</label>
+          <input type="text" id="subtipo" placeholder="Ej. Consejo Técnico">
+        </div>
+        <div class="campo">
+          <label>Firmante</label>
+          <select id="firmante"><option value="">Cargando…</option></select>
+        </div>
+      </div>
+      <div class="campo">
+        <label>Puntos clave</label>
+        <textarea id="puntos" placeholder="Fechas, indicaciones, acuerdos, recordatorios o contexto. La IA redacta a partir de esto (no inventa)."></textarea>
+      </div>
+      <div class="campo">
+        <label>Borrador libre (opcional)</label>
+        <textarea id="borrador" placeholder="Si ya tienes un texto, pégalo aquí y el sistema lo mejora sin cambiar el sentido."></textarea>
+      </div>
+      <div class="campo">
+        <label>Instrucciones especiales (opcional)</label>
+        <textarea id="instr" placeholder="Ej. tono cercano, enfatizar la fecha, hacerlo breve. Sin datos sensibles."></textarea>
+      </div>
+      <div class="campo">
+        <label>Título de la tabla (opcional)</label>
+        <input type="text" id="tablaTit" placeholder="Ej. Relación de alumnos (déjalo en blanco si no lleva título)">
+      </div>
+      <div class="campo">
+        <label>Tabla (opcional)</label>
+        <textarea id="tabla" placeholder="Pega aquí una tabla desde Excel o Sheets (o escríbela con | entre columnas). La primera fila son los encabezados. Los datos los pones tú; la IA no los inventa."></textarea>
+        <div class="hint">Se dibuja como tabla formal al final del cuerpo. Copiar y pegar de Excel/Sheets funciona directo.</div>
+      </div>
+      <div class="campo">
+        <label>Opciones</label>
+        <div class="checks">
+          <label class="chk"><input type="checkbox" id="usarIA" checked> Redactar/mejorar con IA</label>
+          <label class="chk"><input type="checkbox" id="genWa" checked> Texto para WhatsApp</label>
+          <label class="chk"><input type="checkbox" id="genMail" checked> Correo sugerido</label>
+        </div>
+        <div class="hint">La IA solo usa los datos que capturas; no inventa fechas, nombres ni cifras. Revisa siempre antes de imprimir o enviar.</div>
+      </div>
+      <button class="btn" type="button" id="btnGen" onclick="generar(this)">Generar documento</button>
+      <div class="msg" id="msg"></div>
+    </form>
+  </div>
+
+  <!-- RESULTADO -->
+  <div id="resultado" style="display:none">
+    <div class="toolbar noprint">
+      <div class="t">Documento <b id="folioLbl"></b> listo. Revísalo antes de enviar o imprimir.</div>
+      <button class="btn-sm" onclick="window.print()">Imprimir / PDF</button>
+      <button class="btn-sm alt" onclick="otro()">Otro</button>
+    </div>
+    <div class="hoja-wrap"><div class="hoja" id="hoja"></div></div>
+    <div class="envio noprint" id="envioPanel">
+      <div class="envio-tit">Enviar el documento</div>
+      <div class="campo">
+        <label>¿A quién?</label>
+        <select id="publico" onchange="publicoCambio()">
+          <option value="padres">Padres de familia</option>
+          <option value="personal">Personal (docentes y colaboradores)</option>
+        </select>
+      </div>
+
+      <div id="zonaPadres">
+        <div class="fila">
+          <div class="campo">
+            <label>Alcance</label>
+            <select id="alcance" onchange="alcanceCambio()">
+              <option value="grupo">Un grupo</option>
+              <option value="nivel">Todo el nivel</option>
+              <option value="escuela">Toda la escuela</option>
+            </select>
+          </div>
+          <div class="campo" id="grupoWrap">
+            <label>Grupo</label>
+            <select id="grupoDestino"><option value="">Cargando…</option></select>
+          </div>
+        </div>
+      </div>
+
+      <div id="zonaPersonal" style="display:none">
+        <div class="campo">
+          <label>Nivel (opcional)</label>
+          <div class="checks" id="nivPersonal"><span class="hint">Cargando…</span></div>
+        </div>
+        <div class="campo">
+          <label>Puesto (opcional)</label>
+          <div class="checks" id="puestoPersonal"><span class="hint">Cargando…</span></div>
+        </div>
+        <div class="hint">Marca uno o varios. Si no marcas nada, se envía a <b>todo el personal</b> activo.</div>
+      </div>
+
+      <button class="btn-sm acc" onclick="enviarDoc(this)">Ver destinatarios y enviar</button>
+      <button class="btn-sm alt" onclick="enviarCorreo(this)">Enviar a otros correos…</button>
+      <div class="msg" id="msgEnvio" style="margin-top:12px;"></div>
+    </div>
+    <div class="extra noprint" id="extra"></div>
+    <div class="msg noprint" id="msg2" style="margin:0 20px 24px;"></div>
+  </div>
+</div>
+<script src="app.js"></script>
+</body>
+</html>
