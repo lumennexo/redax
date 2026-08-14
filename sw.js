@@ -1,42 +1,39 @@
-/* REDAX · Service Worker
- * Objetivo: que la app sea instalable y abra rápido. Estrategia "red primero"
- * para los archivos propios (así siempre ves la última versión cuando hay
- * internet) con respaldo desde caché si estás sin señal. La API (Apps Script)
- * y las fuentes de Google van directo a la red, nunca se cachean.
- * Sube el número de versión (CACHE) cuando cambies index.html o app.js. */
-var CACHE = 'redax-v1';
-var SHELL = [
-  './',
-  './index.html',
-  './app.js',
-  './manifest.webmanifest',
-  './icons/icon-192.png',
-  './icons/icon-512.png'
-];
+/* REDAX PWA · service worker (mismo patrón que ORBI).
+   - El cascarón (index.html) se sirve RED-PRIMERO: siempre muestra lo último si hay internet,
+     y usa el caché solo como respaldo sin señal. Así las actualizaciones llegan solas.
+   - Los íconos van caché-primero (no cambian casi nunca).
+   - La app de Apps Script (otro dominio) nunca se cachea: siempre a la red. */
+var CACHE = 'redax-shell-v1';
+var ASSETS = ['./','index.html','manifest.webmanifest',
+  'icon-192.png','icon-512.png','maskable-512.png','apple-touch-180.png','favicon-32.png'];
 
-self.addEventListener('install', function (e) {
-  e.waitUntil(
-    caches.open(CACHE).then(function (c) { return c.addAll(SHELL); }).then(function () { return self.skipWaiting(); })
-  );
+self.addEventListener('install', function(e){
+  e.waitUntil(caches.open(CACHE).then(function(c){ return c.addAll(ASSETS); }).then(function(){ return self.skipWaiting(); }));
 });
-
-self.addEventListener('activate', function (e) {
-  e.waitUntil(
-    caches.keys().then(function (ks) {
-      return Promise.all(ks.filter(function (k) { return k !== CACHE; }).map(function (k) { return caches.delete(k); }));
-    }).then(function () { return self.clients.claim(); })
-  );
+self.addEventListener('activate', function(e){
+  e.waitUntil(caches.keys().then(function(ks){
+    return Promise.all(ks.map(function(k){ if(k!==CACHE) return caches.delete(k); }));
+  }).then(function(){ return self.clients.claim(); }));
 });
-
-self.addEventListener('fetch', function (e) {
+self.addEventListener('fetch', function(e){
   var url = new URL(e.request.url);
-  // Solo gestionamos peticiones GET de nuestro propio origen (el sitio estático).
-  if (e.request.method !== 'GET' || url.origin !== self.location.origin) return;
-  e.respondWith(
-    fetch(e.request).then(function (res) {
-      var copia = res.clone();
-      caches.open(CACHE).then(function (c) { c.put(e.request, copia); });
-      return res;
-    }).catch(function () { return caches.match(e.request); })
-  );
+  if (url.origin !== location.origin) return; // Apps Script y demás → red directa
+
+  var esHTML = e.request.mode === 'navigate' ||
+               url.pathname.endsWith('/') ||
+               url.pathname.endsWith('index.html');
+
+  if (esHTML) {
+    e.respondWith(
+      fetch(e.request).then(function(r){
+        var copia = r.clone();
+        caches.open(CACHE).then(function(c){ c.put(e.request, copia); });
+        return r;
+      }).catch(function(){
+        return caches.match(e.request).then(function(r){ return r || caches.match('index.html'); });
+      })
+    );
+    return;
+  }
+  e.respondWith(caches.match(e.request).then(function(r){ return r || fetch(e.request); }));
 });
